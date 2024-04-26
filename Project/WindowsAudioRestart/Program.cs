@@ -20,6 +20,8 @@ namespace WindowsAudioRestart
                 // 管理者権限で実行するための設定
                 Verb = "runas",
                 UseShellExecute = true,
+                RedirectStandardOutput = true, // 標準出力をリダイレクト
+                RedirectStandardError = true, // 標準エラーをリダイレクト
                 CreateNoWindow = true,
                 WindowStyle = ProcessWindowStyle.Hidden
             };
@@ -29,8 +31,14 @@ namespace WindowsAudioRestart
                 // プロセスを起動
                 using (Process process = Process.Start(processStartInfo))
                 {
+                    string output = process.StandardOutput.ReadToEnd(); // 出力を読み取る
+                    string errors = process.StandardError.ReadToEnd(); // エラーを読み取る
                     process.WaitForExit(); // プロセスが終了するまで待機
                     Console.WriteLine("Windows Audio service has been restarted successfully.");
+                    if (!string.IsNullOrEmpty(errors))
+                    {
+                        Console.WriteLine("Error: " + errors);
+                    }
                 }
             }
             catch (Exception ex)
